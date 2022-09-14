@@ -19,23 +19,34 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Test
 
+/**
+ * testing RemindersDao interface
+ * Testing different ways of insertion The functions we will be testing on is:
+ *    1. getReminders
+ *    2. getReminderById
+ *    3. saveReminder
+ *    4. deleteAllReminders
+ *    5. delete
+ **/
+
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class RemindersDaoTest {
-
+    // testing implementation to the RemindersDao.kt
     private lateinit var database: RemindersDatabase
 
     private val item1 = ReminderDTO("Reminder1", "Description1", "Location1", 1.0, 1.0,"1")
     private val item2 = ReminderDTO("Reminder2", "Description2", "location2", 2.0, 2.0, "2")
     private val item3 = ReminderDTO("Reminder3", "Description3", "location3", 3.0, 3.0, "3")
 
-
+    // Executes each task synchronously using Architecture Components.
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun initDb() {
+        // using an in-memory database because the information stored here disappears when the process is destroy
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             RemindersDatabase::class.java
@@ -45,14 +56,17 @@ class RemindersDaoTest {
     @After
     fun closeDb() = database.close()
 
+    // This method insert the Items(Reminders) we created above and trying to retrieve them again
+    // * as the expected number of Items(reminders) is 3
     @Test
     fun insertAll() = runBlockingTest {
-
+        // Insert a task.
         database.reminderDao().saveReminder(item1)
         database.reminderDao().saveReminder(item2)
         database.reminderDao().saveReminder(item3)
-
+        // call getReminders() we expected to get all Items(reminders) we have.
         val loaded = database.reminderDao().getReminders()
+        // The loaded data has the correct number of Items(reminders) which is 3 reminders we just inserted
         assertThat(loaded.size, `is`(3))
     }
 
