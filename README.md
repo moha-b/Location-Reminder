@@ -43,8 +43,17 @@ Explain what each test does and why
 ```
 1.androidTest
         //TODO: Students explain their testing here.
+        1. To manage idling resources, EspressoIdlingResource was added to the utils directory.
+        2. To test the RemindersDao interface, use RemindersDaoTest (insertAll - insertAllAndDeleteAll - insertRemindersAndDeleteReminderById)
+        3. The RemindersLocalRepository class (saveRemindersAndDeletesAllReminders, saveReminderAndRetrievesReminderById, saveRemindersAndRetrievesAllReminders, saveRemindersAndDeletesOneReminderById,) is tested using the RemindersLocalRepositoryTest.
+        4. To test the ReminderListFragment (reminderListAndNoReminders, reminderListAndDisplayedInUi, clickFabAndNavigateToReminderFragment) use the ReminderListFragmentTest.
+        5. To do an end-to-end test, use the RemindersActivityTest (showSnackAndEnterLocation, showReminderToast, showSnackAndEnterTitle).
 2. test
         //TODO: Students explain their testing here.
+        1. For a double test, a FakeDataSource class is developed.
+        2. To carry out the tests, LiveDataTestUtil and MainCouroutineRule have been created.
+        3. The RemindersListViewModel (loadRemindersLoadsThreeReminders, invalidateShowNoDataShowNoDataIsTrue, loadRemindersShouldReturnError, loadRemindersCheckLoading) is tested using the RemindersListViewModelTest.
+        4. SaveReminderViewModelTest is used to test the SaveReminderViewModel. It contains the following functions: (saveReminderAndAddsReminderToDataSource, saveReminderAndCheckLoading, validateData_missingLocation_showSnackAndReturnFalse, editReminderSetsLiveDataOfReminderToBeEdited, validateData_missingTitle_showSnackAndReturnFalse, and onClearsReminderLiveData)
 ```
 
 ## Project Instructions
