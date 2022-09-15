@@ -13,7 +13,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.R
-import com.udacity.project4.locationreminders.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,7 +52,7 @@ class ReminderListFragmentTest: KoinTest {
         val testModule = module {
             //Declare a ViewModel - be later inject into Fragment with dedicated injector using by viewModel()
             viewModel { RemindersListViewModel(get(), get()) }
-            single { FakeDataSource() as ReminderDataSource }
+            //single { FakeDataSource() as ReminderDataSource }
         }
 
         startKoin {
