@@ -33,10 +33,10 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.hamcrest.core.IsNot.not
 
-
+// Using Koin as a service locator, we are testing ReminderListFragment in this class.
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-//UI Testing
+// UI Testing
 @MediumTest
 class ReminderListFragmentTest: KoinTest {
 
@@ -49,63 +49,65 @@ class ReminderListFragmentTest: KoinTest {
     @Before
     fun initRepository() {
         stopKoin()
-        val myModule = module {
+        // use Koin Library as a service locator
+        val testModule = module {
+            //Declare a ViewModel - be later inject into Fragment with dedicated injector using by viewModel()
             viewModel { RemindersListViewModel(get(), get()) }
             single { FakeDataSource() as ReminderDataSource }
         }
 
         startKoin {
             androidContext(getApplicationContext())
-            modules(listOf(myModule))
+            modules(listOf(testModule))
         }
     }
 
     @After
     fun cleanupDb() = runBlockingTest { dataSource.deleteAllReminders() }
 
-
+    // Here, we're testing the ReminderList to see if it accurately displays the reminders.
     @Test
     fun reminderListAndDisplayedInUi() = runBlockingTest{
-
+        // ADD ACTIVE (INCOMPLETE) TASK TO DB FOR GIVEN
         dataSource.saveReminder(item1)
         dataSource.saveReminder(item2)
         dataSource.saveReminder(item3)
-
+        // WHEN - Start Fragment
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
         }
-
+        //THEN - We see 3 items(reminders) in the list, which we added above
         onView(withText(item1.title)).check(matches(isDisplayed()))
         onView(withText(item2.description)).check(matches(isDisplayed()))
         onView(withText(item3.title)).check(matches(isDisplayed()))
         onView(withId(R.id.noDataTextView)).check(matches(not(isDisplayed())))
     }
-
+    // Here, we're testing the ReminderList to see what it would display in the absence of any items(reminders)
     @Test
     fun reminderListAndNoReminders() = runBlockingTest{
-
+        // GIVEN - Empty Database
         dataSource.deleteAllReminders()
+        // WHEN - start Fragment
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
         scenario.onFragment { Navigation.setViewNavController(it.view!!, navController) }
-
+        //THEN - We don't see any items(reminders), we only see No data string
         onView(withText(R.string.no_data)).check(matches(isDisplayed()))
         onView(withId(R.id.noDataTextView)).check(matches(isDisplayed()))
         onView(withText(item1.title)).check(doesNotExist())
     }
-
+    // Here, we're trying clickFab, and the destination we want to reach is the Reminder Fragment.
     @Test
     fun clickFabAndNavigateToReminderFragment() = runBlockingTest {
-
+        // GIVEN - On the home screen ReminderListFragment
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
         scenario.onFragment { Navigation.setViewNavController(it.view!!, navController) }
+        // WHEN - Click on the fab(float Action button)
         onView(withId(R.id.addReminderFAB)).perform(click())
-
+        // THEN - Verify that we navigate to the (save reminder fragment)
         verify(navController).navigate(ReminderListFragmentDirections.toSaveReminder())
     }
-
-
 }

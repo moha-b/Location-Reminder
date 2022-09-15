@@ -43,17 +43,18 @@ import org.koin.test.KoinTest
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-
+// END TO END test for the app's black box test.
 class RemindersActivityTest :
     KoinTest {
-
+    // To close Koin after each test, integrate the auto close @after function in extended Koin tests.
     private lateinit var repo: ReminderDataSource
     private lateinit var context: Application
+    // An idle resource that waits for all outstanding data bindings to be completed
     private val dataBindingResource = DataBindingIdlingResource()
 
     @get:Rule
     val activityRule = ActivityTestRule(RemindersActivity::class.java)
-
+    // Get activity context
     private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
         var activity: Activity? = null
         activityScenario.onActivity {
@@ -61,9 +62,11 @@ class RemindersActivityTest :
         }
         return activity
     }
-
+    // We'll use Koin to test our code just as we did to design it using the Service Locator Library.
+    // In order to use the Koin-related code in our tests, we shall initialise it now.
     @Before
     fun init() {
+        //stop the app koin
         stopKoin()
         context = getApplicationContext()
         val myModule = module {
@@ -75,12 +78,14 @@ class RemindersActivityTest :
 
             single { LocalDB.createRemindersDao(context) }
         }
+        // new koin module
         startKoin { modules(listOf(myModule)) }
+        //Get our repository
         repo = get()
-
+        // delete the data to start fresh
         runBlocking { repo.deleteAllReminders() }
     }
-
+    // In order to be garbage collected and prevent memory leaks, deregister your idle resource.
     @After
     fun unregisterResource() {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
@@ -92,49 +97,54 @@ class RemindersActivityTest :
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().register(dataBindingResource)
     }
-
+    // This function tests adding a reminder and displaying saved toast.
     @ExperimentalCoroutinesApi
     @Test
     fun showReminderToast() = runBlocking{
+        // GIVEN - Launch Reminder activity
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingResource.monitorActivity(scenario)
-
+        // WHEN - We begin entering information for the reminder.
         onView(withId(R.id.addReminderFAB)).perform(click())
         onView(withId(R.id.reminderTitle)).perform(typeText("TITLE1"), closeSoftKeyboard())
         onView(withId(R.id.reminderDescription)).perform(typeText("DESC1"), closeSoftKeyboard())
         onView(withId(R.id.selectLocation)).perform(click())
         onView(withId(com.google.android.material.R.id.snackbar_action)).perform(click())
+        // Performing Long click on the map to select a location
         onView(withId(R.id.map)).perform(longClick())
         onView(withId(R.id.save)).perform(click())
         onView(withId(R.id.saveReminder)).perform(click())
+        // THEN - expect to have a Toast displaying reminder_saved String.
         onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(getActivity(scenario)?.window?.decorView))))
             .check(matches(isDisplayed()))
         scenario.close()
     }
-
+    // We test adding a reminder in this method without a title.
     @Test
     fun showSnackAndEnterTitle(){
-
+        // GIVEN - Launch Reminders Activity
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingResource.monitorActivity(scenario)
-
+        // WHEN - click on add reminder and try to save the reminder without giving any inputs
         onView(withId(R.id.addReminderFAB)).perform(click())
         onView(withId(R.id.saveReminder)).perform(click())
+        // THEN - expect we have a SnackBar displaying err_enter_title
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.err_enter_title)))
 
         scenario.close()
     }
-
+    // We test adding a reminder using this function without entering a location.
     @Test
     fun showSnackAndEnterLocation(){
-
+        // GIVEN - Launch Reminders Activity
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingResource.monitorActivity(scenario)
-
+        // WHEN - click on add reminder and try to save the reminder without giving a location
         onView(withId(R.id.addReminderFAB)).perform(click())
         onView(withId(R.id.reminderTitle)).perform(typeText("TITLE1"), closeSoftKeyboard())
         onView(withId(R.id.saveReminder)).perform(click())
+        // THEN - expect we have a SnackBar displaying err_select_location
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.err_select_location)))
 
