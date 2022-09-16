@@ -9,9 +9,7 @@ import java.util.concurrent.TimeoutException
 // This file is to help us test LiveData objects from our ViewModels
 @VisibleForTesting(otherwise = VisibleForTesting.NONE)
 fun <T> LiveData<T>.getOrAwaitValue(time: Long = 2,
-    timeUnit: TimeUnit = TimeUnit.SECONDS,
-    afterObserve: () -> Unit = {}
-): T {
+    timeUnit: TimeUnit = TimeUnit.SECONDS, afterObserve: () -> Unit = {}): T {
     var data: T? = null
     val latch = CountDownLatch(1)
     val observer = object : Observer<T> {
