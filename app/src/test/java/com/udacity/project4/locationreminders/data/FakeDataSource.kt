@@ -7,49 +7,20 @@ import com.udacity.project4.locationreminders.data.dto.Result
 class FakeDataSource(
     private var reminders: MutableList<ReminderDTO> = mutableListOf()
 ) : ReminderDataSource {
-
     // DONE: Create a fake data source to act as a double to the real data source
-    private var shouldReturnError = false
-
-    override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        // DONE: "Return the reminders"
-        if (shouldReturnError) {
-            return Result.Error("Test exception")
-        }
-        return try {
-            Result.Success(ArrayList(reminders))
-        } catch (ex: Exception) {
-            Result.Error(ex.localizedMessage)
-        }
+    private var isReturnError = false
+    fun setReturnsError(value: Boolean) {
+        isReturnError = value
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
         // DONE: "Save the reminder"
-        reminders.add(reminder)
-    }
-
-    override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        // DONE: "Return the reminder with the id"
-        if (shouldReturnError) {
-            Result.Error("Test exception")
-        }
-        return try {
-            val reminder = reminders.find {
-                it.id == id
-            }
-            if (reminder != null) {
-                Result.Success(reminder)
-            } else {
-                Result.Error("Reminder not found!")
-            }
-        } catch (e: Exception) {
-            Result.Error(e.localizedMessage)
-        }
+        reminders?.add(reminder)
     }
 
     override suspend fun deleteAllReminders() {
         // DONE: "Delete all the reminders"
-        reminders = mutableListOf()
+        reminders?.clear()
     }
 
     override suspend fun delete(id: String) {
@@ -57,5 +28,34 @@ class FakeDataSource(
             it.id == id
         }
         reminders.remove(remind)
+    }
+
+    override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        // DONE: "Return the reminders"
+        if (isReturnError) {
+            return Result.Error("Error occurred")
+        }
+        else {
+            reminders?.let {
+                return Result.Success(ArrayList(it))
+            }
+            return Result.Error("Reminders not found")
+        }
+    }
+
+    override suspend fun getReminder(id: String): Result<ReminderDTO> {
+        // DONE: "Return the reminder with the id"
+        if (isReturnError){
+            return Result.Error("Error occurred")
+        }else{
+
+            reminders?.let { reminderList->
+                for (i in reminderList){
+                    if(i.id ==id)
+                        return Result.Success(i)
+                }
+            }
+            return Result.Error("Reminder not found")
+        }
     }
 }
