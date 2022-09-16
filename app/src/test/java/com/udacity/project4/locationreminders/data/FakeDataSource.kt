@@ -8,7 +8,7 @@ class FakeDataSource(
     private var reminders: MutableList<ReminderDTO> = mutableListOf()
 ) : ReminderDataSource {
     // DONE: Create a fake data source to act as a double to the real data source
-    private var isReturnError = false
+    //private var isReturnError = false
 //    fun setReturnsError(value: Boolean) {
 //        isReturnError = value
 //    }
@@ -32,31 +32,23 @@ class FakeDataSource(
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         // DONE: "Return the reminders"
-        if (isReturnError) {
-            return Result.Error("Error occurred")
+        reminders?.let {
+            return Result.Success(ArrayList(it))
         }
-        else {
-            reminders?.let {
-                return Result.Success(ArrayList(it))
-            }
-            // if there is no reminder in database return the error message
-            return Result.Error("Reminders not found")
-        }
+        // if there is no reminder in database return the error message
+        return Result.Error("Reminders not found")
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         // DONE: "Return the reminder with the id"
-        if (isReturnError){
-            return Result.Error("Error occurred")
-        }else{
-            reminders?.let { reminderList->
-                for (i in reminderList){
-                    if(i.id ==id)
-                        return Result.Success(i)
-                }
+        reminders?.let { reminderList->
+            for (i in reminderList){
+                if(i.id ==id)
+                    return Result.Success(i)
             }
-            // if there is no reminder in database return the error message
-            return Result.Error("Reminder not found")
         }
+        // if there is no reminder in database return the error message
+        return Result.Error("Reminder not found")
+
     }
 }
