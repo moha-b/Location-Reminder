@@ -9,9 +9,9 @@ class FakeDataSource(
 ) : ReminderDataSource {
     // DONE: Create a fake data source to act as a double to the real data source
     private var isReturnError = false
-    fun setReturnsError(value: Boolean) {
-        isReturnError = value
-    }
+//    fun setReturnsError(value: Boolean) {
+//        isReturnError = value
+//    }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
         // DONE: "Save the reminder"
@@ -39,6 +39,7 @@ class FakeDataSource(
             reminders?.let {
                 return Result.Success(ArrayList(it))
             }
+            // if there is no reminder in database return the error message
             return Result.Error("Reminders not found")
         }
     }
@@ -48,13 +49,13 @@ class FakeDataSource(
         if (isReturnError){
             return Result.Error("Error occurred")
         }else{
-
             reminders?.let { reminderList->
                 for (i in reminderList){
                     if(i.id ==id)
                         return Result.Success(i)
                 }
             }
+            // if there is no reminder in database return the error message
             return Result.Error("Reminder not found")
         }
     }
