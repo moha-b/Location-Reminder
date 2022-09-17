@@ -100,11 +100,11 @@ class RemindersListViewModelTest {
     @Test
     fun loadRemindersShouldReturnError()= coroutineRule.runBlockingTest{
         // give : set should return error to "true
-        data.shouldReturnError(true)
+        data.returnError(true)
         // when : we load Reminders
         remindersList.loadReminders()
         // then : we receive "no Reminders detected" from showSnackBar in the view model.
-        //assertThat(remindersList.showSnackBar.getOrAwaitValue(), `is`("Noo Reminders found"))
+        assertThat(remindersList.showSnackBar.getOrAwaitValue(), `is`("not found"))
     }
 
 }
