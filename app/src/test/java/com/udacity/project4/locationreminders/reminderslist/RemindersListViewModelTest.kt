@@ -103,7 +103,7 @@ class RemindersListViewModelTest {
         data.returnError(true)
         // when : we load Reminders
         remindersList.loadReminders()
-        // then : we receive "no Reminders detected" from showSnackBar in the view model.
+        // then : We get showSnackBar in the view model giving us "not found"
         assertThat(remindersList.showSnackBar.getOrAwaitValue(), `is`("not found"))
     }
 
