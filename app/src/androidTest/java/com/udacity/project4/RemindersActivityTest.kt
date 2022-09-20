@@ -40,10 +40,10 @@ import org.koin.test.get
 import org.hamcrest.core.IsNot.not
 import org.koin.test.KoinTest
 
-
+//Please not that these tests should be run on API 29 or less
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-// END TO END test for the app's black box test.
+//END TO END test to black box test the app
 class RemindersActivityTest :
     KoinTest {
     // To close Koin after each test, integrate the auto close @after function in extended Koin tests.
@@ -66,16 +66,13 @@ class RemindersActivityTest :
     // In order to use the Koin-related code in our tests, we shall initialise it now.
     @Before
     fun init() {
-        //stop the app koin
+        //stop the original app koin
         stopKoin()
         context = getApplicationContext()
         val myModule = module {
             viewModel { RemindersListViewModel(context, get() as ReminderDataSource) }
-
             single { SaveReminderViewModel(context, get() as ReminderDataSource) }
-
             single { RemindersLocalRepository(get()) as ReminderDataSource }
-
             single { LocalDB.createRemindersDao(context) }
         }
         // new koin module
@@ -85,6 +82,7 @@ class RemindersActivityTest :
         // delete the data to start fresh
         runBlocking { repo.deleteAllReminders() }
     }
+
     // In order to be garbage collected and prevent memory leaks, deregister your idle resource.
     @After
     fun unregisterResource() {
@@ -100,7 +98,7 @@ class RemindersActivityTest :
     // This function tests adding a reminder and displaying saved toast.
     @ExperimentalCoroutinesApi
     @Test
-    fun showReminderToast() = runBlocking{
+    fun showReminderSavedToast() = runBlocking{
         // GIVEN - Launch Reminder activity
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingResource.monitorActivity(scenario)

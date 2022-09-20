@@ -1,5 +1,5 @@
 package com.udacity.project4.locationreminders.reminderslist
-
+import FakeDataSource
 import android.os.Bundle
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
@@ -31,16 +31,14 @@ import org.koin.test.inject
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.hamcrest.core.IsNot.not
-
 // Using Koin as a service locator, we are testing ReminderListFragment in this class.
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-// UI Testing
+//UI Testing
 @MediumTest
 class ReminderListFragmentTest: KoinTest {
 
     private val dataSource: ReminderDataSource by inject()
-
     private val item1 = ReminderDTO("Reminder1", "Description1", "Location1", 1.0, 1.0,"1")
     private val item2 = ReminderDTO("Reminder2", "Description2", "location2", 2.0, 2.0, "2")
     private val item3 = ReminderDTO("Reminder3", "Description3", "location3", 3.0, 3.0, "3")
@@ -48,25 +46,30 @@ class ReminderListFragmentTest: KoinTest {
     @Before
     fun initRepository() {
         stopKoin()
-        // use Koin Library as a service locator
-        val testModule = module {
+         // use Koin Library as a service locator
+        val myModule = module {
             //Declare a ViewModel - be later inject into Fragment with dedicated injector using by viewModel()
-            viewModel { RemindersListViewModel(get(), get()) }
-            //single { FakeDataSource() as ReminderDataSource }
+            viewModel {
+                RemindersListViewModel(
+                    get(),
+                    get()
+                )
+            }
+            single {
+                FakeDataSource() as ReminderDataSource
+            }
         }
-
         startKoin {
             androidContext(getApplicationContext())
-            modules(listOf(testModule))
+            modules(listOf(myModule))
         }
     }
 
     @After
     fun cleanupDb() = runBlockingTest { dataSource.deleteAllReminders() }
-
     // Here, we're testing the ReminderList to see if it accurately displays the reminders.
     @Test
-    fun reminderListAndDisplayedInUi() = runBlockingTest{
+    fun reminderListAndDisplayedInUi() = runBlockingTest {
         // ADD ACTIVE (INCOMPLETE) TASK TO DB FOR GIVEN
         dataSource.saveReminder(item1)
         dataSource.saveReminder(item2)
@@ -74,9 +77,7 @@ class ReminderListFragmentTest: KoinTest {
         // WHEN - Start Fragment
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
-        scenario.onFragment {
-            Navigation.setViewNavController(it.view!!, navController)
-        }
+        scenario.onFragment { Navigation.setViewNavController(it.view!!, navController) }
         //THEN - We see 3 items(reminders) in the list, which we added above
         onView(withText(item1.title)).check(matches(isDisplayed()))
         onView(withText(item2.description)).check(matches(isDisplayed()))

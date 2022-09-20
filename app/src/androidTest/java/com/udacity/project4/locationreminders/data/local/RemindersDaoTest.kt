@@ -28,7 +28,6 @@ import org.junit.Test
  *    4. deleteAllReminders
  *    5. delete
  **/
-
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -39,7 +38,6 @@ class RemindersDaoTest {
     private val item1 = ReminderDTO("Reminder1", "Description1", "Location1", 1.0, 1.0,"1")
     private val item2 = ReminderDTO("Reminder2", "Description2", "location2", 2.0, 2.0, "2")
     private val item3 = ReminderDTO("Reminder3", "Description3", "location3", 3.0, 3.0, "3")
-
     // Executes each task synchronously using Architecture Components.
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
@@ -55,7 +53,6 @@ class RemindersDaoTest {
 
     @After
     fun closeDb() = database.close()
-
     // This method insert the Items(Reminders) we created above and trying to retrieve them again
     // * as the expected number of Items(reminders) is 3
     @Test
@@ -69,15 +66,14 @@ class RemindersDaoTest {
         // The loaded data has the correct number of Items(reminders) which is 3 reminders we just inserted
         assertThat(loaded.size, `is`(3))
     }
-
     /*
-    * We built insertReminderAndGetIt to test whether we could only obtain a single reminder using specific settings.
-    * Here, we put one reminder, designated as item1 above,
-    * and then attempt to retrieve it using its Id.
-    */
+     * We built insertReminderAndGetIt to test whether we could only obtain a single reminder using specific settings.
+     * Here, we put one reminder, designated as item1 above,
+     * and then attempt to retrieve it using its Id.
+     */
     @Test
     fun insertReminderAndGetIt() = runBlockingTest {
-        //  Insert a task.
+        // Insert a task.
         database.reminderDao().saveReminder(item1)
         //  Get the task by id from the database.
         val load = database.reminderDao().getReminderById(item1.id)
@@ -116,16 +112,15 @@ class RemindersDaoTest {
         // There should be only 2 items in the DB since we deleted one
         val load = database.reminderDao().getReminders()
         assertThat(load.size, `is`(2))
-        // The items 0 in the DB should be the reminder 2 not 1 since we deleted it previously.
         assertThat(load[0].id, `is` (item2.id))
     }
     /*
-    * This method is designed to return a Null Value error :
-        * 1- We added three items
-        * 2- We removed the first item
-        * 4- The item at position 0 is now item2, not item1
-        * 3- We tried retrieving the deleted item by Id, but we expected to get null since we deleted it.
-    */
+     * This method is designed to return a Null Value error :
+       * 1- We added three items
+       * 2- We removed the first item
+       * 4- The item at position 0 is now item2, not item1
+       * 3- We tried retrieving the deleted item by Id, but we expected to get null since we deleted it.
+   */
     @Test
     fun returnsError()= runBlockingTest{
         // Insert all items
