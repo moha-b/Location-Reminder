@@ -104,7 +104,7 @@ class RemindersListViewModelTest {
         // when : we load Reminders
         remindersList.loadReminders()
         // then : We get showSnackBar in the view model giving us "not found"
-        assertThat(remindersList.showSnackBar.getOrAwaitValue(), `is`("not found"))
+        assertThat(remindersList.showSnackBar.getOrAwaitValue(), `is`("no Reminder found"))
     }
 
 }
