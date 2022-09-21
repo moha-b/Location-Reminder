@@ -18,17 +18,18 @@ class FakeDataSource(private var reminders: MutableList<ReminderDTO>? = mutableL
     }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        // that confirm the correct behavior when the reminders list for some reason can't be loaded
         if(returnError){
-            return Result.Error("not found")
+            return Result.Error("reminders were unable to get retrieved")
         }
         // Return the reminders
         reminders?.let { return Result.Success(ArrayList(it)) }
-        return Result.Error("No Reminders found")
+        return Result.Error("reminders were unable to get retrieved")
     }
     // that confirm the correct behavior when the reminders list for some reason can't be loaded
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         if(returnError){
-            return Result.Error("no Reminder found")
+            return Result.Error("reminders were unable to get retrieved")
         }
         // Return the reminder with the id
         val reminder = reminders?.find {
@@ -37,7 +38,7 @@ class FakeDataSource(private var reminders: MutableList<ReminderDTO>? = mutableL
         return if (reminder!=null){
             Result.Success(reminder)
         } else{
-            Result.Error("no Reminder found")
+            Result.Error("reminders were unable to get retrieved")
         }
     }
 
