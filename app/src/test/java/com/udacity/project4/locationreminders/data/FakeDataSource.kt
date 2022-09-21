@@ -23,8 +23,11 @@ class FakeDataSource(private var reminders: MutableList<ReminderDTO>? = mutableL
             return Result.Error("reminders were unable to get retrieved")
         }
         // Return the reminders
-        reminders?.let { return Result.Success(ArrayList(it)) }
-        return Result.Error("No Reminder Found")
+        return try {
+            Result.Success(ArrayList(reminders))
+        } catch (ex: Exception) {
+            Result.Error(ex.localizedMessage)
+        }
     }
     // that confirm the correct behavior when the reminders list for some reason can't be loaded
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
