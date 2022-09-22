@@ -21,12 +21,8 @@ class FakeDataSource(private var reminders: MutableList<ReminderDTO>? = mutableL
         // that confirm the correct behavior when the reminders list for some reason can't be loaded
         if(returnError){
             return Result.Error("reminders were unable to get retrieved")
-        }
-        // Return the reminders
-        return try {
-            Result.Success(ArrayList(reminders))
-        } catch (ex: Exception) {
-            Result.Error(ex.localizedMessage)
+        } else {
+            return Result.Success(ArrayList(reminders))
         }
     }
     // that confirm the correct behavior when the reminders list for some reason can't be loaded
